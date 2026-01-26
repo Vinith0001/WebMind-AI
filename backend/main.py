@@ -6,12 +6,25 @@ from langchain_ollama import OllamaLLM
 from langchain_core.prompts import PromptTemplate
 from langchain_community.vectorstores import FAISS
 from langchain_core.output_parsers import StrOutputParser
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_core.documents import Document
+from langchain_groq import ChatGroq
+import os
+
+from dotenv import load_dotenv
+
+load_dotenv()
 
 emb_model = HuggingFaceEmbeddings(model_name="BAAI/bge-small-en") # Embedding Model
-model = OllamaLLM(model="llama3.2:latest", num_ctx=1024) # Main LLM Model
+# ollama_model = OllamaLLM(model="llama3.2:latest", num_ctx=1024) # Main LLM Model
+
+groq_model = ChatGroq(
+    api_key=os.getenv("GROQ_API_KEY"),
+    model="llama-3.1-8b-instant",
+    temperature=0
+)
+
 parser = StrOutputParser()
 
 app = FastAPI()
@@ -43,6 +56,18 @@ def get_answer(payload: RAGrequest):
     )
     final_prompt = template.format(docs=context, query=payload.query)
 
-    response = model.invoke(final_prompt)
+    # try:
+    #     # Try local Ollama first
+    #     response = ollama_model.invoke(final_prompt)
+    #     used_model = "ollama"
+
+    # except Exception as e:
+    #     print("Ollama failed, switching to Groq:", e)
+
+    #     # Fallback to Groq
+    response = groq_model.invoke(final_prompt)
+    response = response.content  # Groq returns AIMessage
+    #     used_model = "groq"
+
 
     return JSONResponse(content={"answer": response})
