@@ -1,7 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "RAG Web Chat",
+  "name": "WebMind AI",
   "version": "1.0",
+  "description": "Smart web content analysis with AI",
   "permissions": ["activeTab", "scripting"],
   "action": {
     "default_popup": "popup.html",

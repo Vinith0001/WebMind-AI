@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PageSense</title>
+    <title>WebMind AI</title>
     <style>
         * {
             margin: 0;
@@ -13,33 +13,18 @@
 
         body {
             width: 380px;
-            min-height: 500px;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: #e0e0e0;
-            padding: 15px;
-            position: relative;
+            min-height: 600px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            color: #fff;
             overflow: hidden;
         }
 
-        body::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: 
-                radial-gradient(circle at 20% 20%, rgba(120, 119, 198, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 80% 80%, rgba(255, 75, 178, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 40% 60%, rgba(59, 130, 246, 0.1) 0%, transparent 50%);
-            pointer-events: none;
-        }
-
         .container {
-            position: relative;
-            z-index: 1;
-            height: 100%;
+            padding: 15px;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
         .header {
@@ -47,94 +32,137 @@
             margin-bottom: 15px;
         }
 
+        .logo {
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            margin: 0 auto 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            backdrop-filter: blur(10px);
+        }
+
         .header h1 {
-            font-size: 24px;
+            font-size: 22px;
             font-weight: 700;
-            background: linear-gradient(45deg, #64b5f6, #81c784, #ffb74d);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 5px;
+            margin-bottom: 3px;
         }
 
         .header p {
-            font-size: 12px;
-            color: #a0a0a0;
-            font-weight: 400;
+            font-size: 13px;
+            opacity: 0.9;
         }
 
-        .input-container {
-            position: relative;
-            margin-bottom: 15px;
+        .controls {
+            margin-bottom: 12px;
+        }
+
+        .language-select {
+            width: 100%;
+            padding: 8px 12px;
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 12px;
+            backdrop-filter: blur(10px);
+        }
+
+        .language-select option {
+            background: #333;
+            color: #fff;
+        }
+
+        .input-section {
+            margin-bottom: 12px;
+        }
+
+        .input-label {
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            display: block;
+            opacity: 0.9;
         }
 
         #userQuery {
             width: 100%;
-            min-height: 80px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            min-height: 60px;
+            max-height: 120px;
+            background: rgba(255,255,255,0.15);
+            border: 2px solid rgba(255,255,255,0.2);
             border-radius: 12px;
-            padding: 12px;
-            font-size: 14px;
-            color: #e0e0e0;
+            padding: 10px;
+            font-size: 12px;
+            color: #fff;
             font-family: inherit;
             resize: vertical;
             transition: all 0.3s ease;
             backdrop-filter: blur(10px);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
         }
 
         #userQuery:focus {
             outline: none;
-            border-color: #64b5f6;
-            box-shadow: 0 0 0 2px rgba(100, 181, 246, 0.2), 0 4px 20px rgba(0, 0, 0, 0.3);
-            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255,255,255,0.5);
+            background: rgba(255,255,255,0.2);
         }
 
         #userQuery::placeholder {
-            color: #888;
-            font-style: italic;
+            color: rgba(255,255,255,0.7);
+        }
+
+        .media-upload {
+            margin-bottom: 15px;
+        }
+
+        .upload-area {
+            border: 2px dashed rgba(255,255,255,0.3);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            background: rgba(255,255,255,0.05);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .upload-area:hover {
+            border-color: rgba(255,255,255,0.5);
+            background: rgba(255,255,255,0.1);
+        }
+
+        .upload-area.dragover {
+            border-color: #4CAF50;
+            background: rgba(76, 175, 80, 0.1);
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .button-container {
+            margin-bottom: 12px;
         }
 
         #askBtn {
             width: 100%;
-            padding: 12px 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
+            padding: 12px;
+            background: rgba(255,255,255,0.2);
+            border: 2px solid rgba(255,255,255,0.3);
             border-radius: 12px;
-            color: white;
-            font-size: 16px;
+            color: #fff;
+            font-size: 14px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-        }
-
-        #askBtn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: left 0.5s;
+            backdrop-filter: blur(10px);
         }
 
         #askBtn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-            background: linear-gradient(135deg, #7289da 0%, #8b5fbf 100%);
-        }
-
-        #askBtn:hover::before {
-            left: 100%;
-        }
-
-        #askBtn:active {
-            transform: translateY(0);
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-1px);
         }
 
         #askBtn:disabled {
@@ -143,145 +171,147 @@
             transform: none;
         }
 
+        .response-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .response-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .response-label {
+            font-size: 13px;
+            font-weight: 500;
+            opacity: 0.9;
+        }
+
+        .language-info {
+            font-size: 11px;
+            opacity: 0.7;
+            background: rgba(255,255,255,0.1);
+            padding: 4px 8px;
+            border-radius: 8px;
+        }
+
         #responseBox {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            flex: 1;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.2);
             border-radius: 12px;
             padding: 12px;
-            min-height: 200px;
-            max-height: 350px;
-            overflow-y: auto;
-            font-size: 14px;
-            line-height: 1.6;
+            font-size: 12px;
+            line-height: 1.5;
             backdrop-filter: blur(10px);
-            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.1);
-            position: relative;
-            margin-top: 15px;
+            overflow-y: auto;
+            min-height: 140px;
+            max-height: 200px;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
         }
 
         #responseBox:empty::before {
-            content: "Your response will appear here...";
-            color: #666;
+            content: "🤖 Ready to analyze page content...";
+            color: rgba(255,255,255,0.6);
             font-style: italic;
-            display: block;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
             text-align: center;
-            margin-top: 50px;
         }
 
-        #responseBox::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        #responseBox::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 3px;
-        }
-
-        #responseBox::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 3px;
-        }
-
-        #responseBox::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.3);
+        .loading, .error, .success {
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
         }
 
         .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,0.3);
             border-radius: 50%;
-            border-top-color: #64b5f6;
-            animation: spin 1s ease-in-out infinite;
-            margin-right: 10px;
+            border-top-color: #fff;
+            animation: spin 1s linear infinite;
         }
 
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
 
-        .response-text {
-            margin-top: 10px;
-            animation: fadeInUp 0.5s ease-out;
+        .error {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
         }
 
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .success {
+            animation: fadeIn 0.5s ease-in;
         }
 
-        .error-message {
-            color: #ff6b6b;
-            background: rgba(255, 107, 107, 0.1);
-            border: 1px solid rgba(255, 107, 107, 0.2);
-            border-radius: 8px;
-            padding: 10px;
-            margin-top: 10px;
-        }
-
-        /* Floating particles animation */
-        .particle {
-            position: absolute;
-            width: 4px;
-            height: 4px;
-            background: rgba(100, 181, 246, 0.3);
-            border-radius: 50%;
-            animation: float 6s infinite linear;
-            pointer-events: none;
-        }
-
-        @keyframes float {
-            0% {
-                transform: translateY(100vh) rotate(0deg);
-                opacity: 0;
-            }
-            10% {
-                opacity: 1;
-            }
-            90% {
-                opacity: 1;
-            }
-            100% {
-                transform: translateY(-10px) rotate(360deg);
-                opacity: 0;
-            }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>PageSense</h1>
-            <p>Ask anything, get intelligent responses</p>
+            <div class="logo">🌍</div>
+            <h1>WebMind AI</h1>
+            <p>Smart web content analysis</p>
         </div>
         
-        <div class="input-container">
-            <textarea id="userQuery" placeholder="Ask a question..."></textarea>
+        <div class="controls">
+            <select class="language-select" id="targetLanguage">
+                <option value="en">🇺🇸 English</option>
+                <option value="es">🇪🇸 Spanish</option>
+                <option value="fr">🇫🇷 French</option>
+                <option value="de">🇩🇪 German</option>
+                <option value="it">🇮🇹 Italian</option>
+                <option value="pt">🇵🇹 Portuguese</option>
+                <option value="ru">🇷🇺 Russian</option>
+                <option value="ja">🇯🇵 Japanese</option>
+                <option value="ko">🇰🇷 Korean</option>
+                <option value="zh">🇨🇳 Chinese</option>
+                <option value="ar">🇸🇦 Arabic</option>
+                <option value="hi">🇮🇳 Hindi</option>
+            </select>
         </div>
         
-        <button id="askBtn">Ask</button>
+
+        <div class="input-section">
+            <label class="input-label" for="userQuery">Your Question:</label>
+            <textarea id="userQuery" placeholder="Ask anything about this page content..."></textarea>
+        </div>
         
-        <div id="responseBox"></div>
+        <div class="button-container">
+            <button id="askBtn">🔍 Analyze Content</button>
+        </div>
+        
+        <div class="response-section">
+            <div class="response-header">
+                <label class="response-label">AI Analysis:</label>
+                <div class="language-info" id="languageInfo"></div>
+            </div>
+            <div id="responseBox"></div>
+        </div>
     </div>
 
-    <!-- Floating particles -->
-    <div class="particle" style="left: 10%; animation-delay: 0s;"></div>
-    <div class="particle" style="left: 20%; animation-delay: 1s;"></div>
-    <div class="particle" style="left: 30%; animation-delay: 2s;"></div>
-    <div class="particle" style="left: 40%; animation-delay: 3s;"></div>
-    <div class="particle" style="left: 50%; animation-delay: 4s;"></div>
-    <div class="particle" style="left: 60%; animation-delay: 5s;"></div>
-    <div class="particle" style="left: 70%; animation-delay: 6s;"></div>
-    <div class="particle" style="left: 80%; animation-delay: 7s;"></div>
-    <div class="particle" style="left: 90%; animation-delay: 8s;"></div>
-
-    <script src="popup.js"></script>
+    <script src="popup_multilang.js"></script>
 </body>
 </html>

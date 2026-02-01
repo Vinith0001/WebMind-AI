@@ -9,3 +9,9 @@ faiss-cpu
 langchain-huggingface
 langchain-groq
 python-dotenv
+pillow
+pytesseract
+youtube-transcript-api
+requests
+speechrecognition
+pydub

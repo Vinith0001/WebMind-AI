@@ -1,73 +1,71 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from fastapi.responses import JSONResponse
-
-from langchain_ollama import OllamaLLM
-from langchain_core.prompts import PromptTemplate
-from langchain_community.vectorstores import FAISS
-from langchain_core.output_parsers import StrOutputParser
-from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_huggingface import HuggingFaceEmbeddings
-from langchain_core.documents import Document
-from langchain_groq import ChatGroq
+from fastapi.middleware.cors import CORSMiddleware
+from .rag import RAGProcessor
 import os
-
 from dotenv import load_dotenv
+
+from typing import Optional
 
 load_dotenv()
 
-emb_model = HuggingFaceEmbeddings(model_name="BAAI/bge-small-en") # Embedding Model
-# ollama_model = OllamaLLM(model="llama3.2:latest", num_ctx=1024) # Main LLM Model
-
-groq_model = ChatGroq(
-    api_key=os.getenv("GROQ_API_KEY"),
-    model="llama-3.1-8b-instant",
-    temperature=0
-)
-
-parser = StrOutputParser()
-
 app = FastAPI()
 
-class RAGrequest(BaseModel):
-    text : str
-    query : str
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Initialize RAG processor
+try:
+    rag_processor = RAGProcessor()
+    print("Enhanced RAG processor initialized successfully")
+except Exception as e:
+    print(f"Error initializing RAG processor: {e}")
+    rag_processor = None
+
+@app.get("/")
+def read_root():
+    return {
+        "message": "WebMind AI API", 
+        "endpoints": ["/chat", "/languages"],
+        "features": ["Multi-language", "Text processing"]
+    }
+
+@app.get("/languages")
+def get_supported_languages():
+    """Get list of supported languages"""
+    if not rag_processor:
+        raise HTTPException(status_code=500, detail="RAG processor not initialized")
+    return {"languages": rag_processor.supported_languages}
+
+class EnhancedRAGRequest(BaseModel):
+    text: str
+    query: str
+    target_language: Optional[str] = 'en'
 
 @app.post("/chat")
-def get_answer(payload: RAGrequest):
+def get_answer(payload: EnhancedRAGRequest):
+    try:
+        if not rag_processor:
+            raise HTTPException(status_code=500, detail="RAG processor not initialized")
+        
+        if not payload.text or not payload.query:
+            raise HTTPException(status_code=400, detail="Both text and query are required")
 
-    splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
-    chunks = splitter.split_text(payload.text)
-    docs = [Document(page_content=chunk) for chunk in chunks]
-
-    vectorstore = FAISS.from_documents(documents=docs, embedding=emb_model)
-
-    retriever = vectorstore.as_retriever(search_type="similarity", search_kwargs={"k": 3})
-    relevant_docs = retriever.invoke(payload.query)
-
-    context = "\n\n".join([doc.page_content for doc in relevant_docs])
-    template = PromptTemplate(
-        template="""
-            You are an assistant. Answer the user's question based only on the below document.
-            Document: {docs}
-            User's question: {query}
-            """,
-        input_variables=["docs", "query"]
-    )
-    final_prompt = template.format(docs=context, query=payload.query)
-
-    # try:
-    #     # Try local Ollama first
-    #     response = ollama_model.invoke(final_prompt)
-    #     used_model = "ollama"
-
-    # except Exception as e:
-    #     print("Ollama failed, switching to Groq:", e)
-
-    #     # Fallback to Groq
-    response = groq_model.invoke(final_prompt)
-    response = response.content  # Groq returns AIMessage
-    #     used_model = "groq"
-
-
-    return JSONResponse(content={"answer": response})
+        result = rag_processor.process_query(
+            text=payload.text,
+            query=payload.query,
+            target_lang=payload.target_language
+        )
+        
+        return JSONResponse(content=result)
+    
+    except Exception as e:
+        print(f"Error in /chat endpoint: {e}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
